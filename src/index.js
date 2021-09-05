@@ -1,14 +1,25 @@
 const path = require('path')
 const http = require('http')
 const express = require('express')
-const socketio = require('socket.io')
+// const socketio = require('socket.io')
+const { ExpressPeerServer } = require('peer');
+
 //const Filter = require('bad-words')
 const { generateMessage, generateLocationMessage } = require('./utils/messages')
 const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
 const app = express()
 const server = http.createServer(app)
-const io = socketio(server)
+const io = require("socket.io")(server, {
+  cors: {
+    origin: '*'
+  }
+});
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+//   path:'/'
+});
+app.use("/peerjs", peerServer);
 
 const port = process.env.PORT || 3000
 const publicDirectoryPath = path.join(__dirname, '../public')
@@ -17,7 +28,6 @@ app.use(express.static(publicDirectoryPath))
 
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')
-
     socket.on('join', (options, callback) => {
         const { error, user } = addUser({ id: socket.id, ...options })
 
@@ -26,8 +36,8 @@ io.on('connection', (socket) => {
         }
 
         socket.join(user.room)
-
         socket.emit('message', generateMessage('Welcome_bot', 'Welcome!'))
+        socket.to(user.room).broadcast.emit("user-connected", user.username);
         socket.broadcast.to(user.room).emit('message', generateMessage('Welcome_bot', `${user.username} has joined ${user.room}`))
         io.to(user.room).emit('roomData', {
             room: user.room,
@@ -44,7 +54,7 @@ io.on('connection', (socket) => {
         //if (filter.isProfane(message)) {
            // return callback('Profanity is not allowed!')
        // }
-
+        // console.log(user);
         io.to(user.room).emit('message', generateMessage(user.username, message))
         callback()
     })

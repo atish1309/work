@@ -111,6 +111,12 @@ button:disabled {
     flex-grow: 1;
     padding: 24px 24px 0 24px;
     overflow-y: scroll;
+    /* align-content: right; */
+    flex:50%;
+}
+
+.videos__group{
+    flex:50%;
 }
 
 /* Message Styles */

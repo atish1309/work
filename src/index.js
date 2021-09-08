@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
 
         socket.join(user.room)
         socket.emit('message', generateMessage('Welcome_bot', 'Welcome!'))
-        socket.to(user.room).broadcast.emit("user-connected", user.username);
+        socket.to(user.room).broadcast.emit("user-connected", user.id,user.peerid);
         socket.broadcast.to(user.room).emit('message', generateMessage('Welcome_bot', `${user.username} has joined ${user.room}`))
         io.to(user.room).emit('roomData', {
             room: user.room,

@@ -120,7 +120,7 @@ let myVideoStream;
 navigator.mediaDevices
   .getUserMedia({
     audio: true,
-    video: true,
+    video: {width:400, height:300},
   })
   .then((stream) => {
     myVideoStream = stream;
@@ -134,13 +134,13 @@ navigator.mediaDevices
       });
     });
 
-    socket.on("user-connected", (userId) => {
-      connectToNewUser(userId, stream);
+    socket.on("user-connected", (userId,peerId) => {
+      connectToNewUser(peerId, stream);
     });
   });
 
-const connectToNewUser = (userId, stream) => {
-  const call = peer.call(userId, stream);
+const connectToNewUser = (peerId, stream) => {
+  const call = peer.call(peerId, stream);
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream);
